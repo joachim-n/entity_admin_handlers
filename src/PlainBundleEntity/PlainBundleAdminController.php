@@ -39,7 +39,7 @@ class PlainBundleAdminController {
     foreach ($entity_bundle_info as $bundle_name => $bundle_info) {
       $build['table']['#rows'][$bundle_name] = [
         'name' => ['data' => $bundle_info['label']],
-        'description' => ['data' => $bundle_info['description']],
+        'description' => ['data' => $bundle_info['description'] ?? ''],
         'operations' => ['data' => $this->buildOperations($entity_type_id, $bundle_name)],
       ];
     }
