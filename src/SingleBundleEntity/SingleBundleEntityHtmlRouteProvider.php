@@ -22,6 +22,28 @@ class SingleBundleEntityHtmlRouteProvider extends AdminHtmlRouteProvider {
   public function getRoutes(EntityTypeInterface $entity_type) {
     $collection = parent::getRoutes($entity_type);
 
+    // Sanity checks.
+    if (!$entity_type->hasLinkTemplate('field-ui-base')) {
+      throw new UnsupportedEntityTypeDefinitionException(sprintf(
+        "The %s entity type uses PlainBundleHtmlRouteProvider but does not define a 'field-ui-base' link template.",
+        $entity_type_id
+      ));
+    }
+    if (!$entity_type->getAdminPermission()) {
+      throw new UnsupportedEntityTypeDefinitionException(sprintf(
+        "The %s entity type uses PlainBundleHtmlRouteProvider but does not define an admin permission.",
+        $entity_type_id
+      ));
+    }
+    // TODO: consider adding 'field_ui_base_route' dynamically in
+    // hook_entity_type_alter(), since the route name is derived.
+    if (!$entity_type->get('field_ui_base_route')) {
+      throw new UnsupportedEntityTypeDefinitionException(sprintf(
+        "The %s entity type uses PlainBundleHtmlRouteProvider but does not define a field_ui_base_route entity type property.",
+        $entity_type_id
+      ));
+    }
+
     $entity_type_id = $entity_type->id();
 
     if ($field_ui_base_route = $this->getFieldUIBaseRoute($entity_type)) {
@@ -41,19 +63,16 @@ class SingleBundleEntityHtmlRouteProvider extends AdminHtmlRouteProvider {
    *   The generated route, if available.
    */
   protected function getFieldUIBaseRoute(EntityTypeInterface $entity_type) {
-    if ($entity_type->hasLinkTemplate('field-ui-base') && ($admin_permission = $entity_type->getAdminPermission())) {
-      $route = new Route($entity_type->getLinkTemplate('field-ui-base'));
-      $route->setDefault('_controller', SingleBundleAdminController::class . '::content');
-      $route->setDefault('_title', '@entity-label field settings');
-      $route->setDefault('_title_arguments', [
-        '@entity-label' => $entity_type->getLabel(),
-      ]);
-      $route->setDefault('entity_type_id', $entity_type->id());
-      $route->setRequirement('_permission', $admin_permission);
+    $route = new Route($entity_type->getLinkTemplate('field-ui-base'));
+    $route->setDefault('_controller', SingleBundleAdminController::class . '::content');
+    $route->setDefault('_title', '@entity-label field settings');
+    $route->setDefault('_title_arguments', [
+      '@entity-label' => $entity_type->getLabel(),
+    ]);
+    $route->setDefault('entity_type_id', $entity_type->id());
+    $route->setRequirement('_permission', $admin_permission);
 
-      return $route;
-    }
-
+    return $route;
   }
 
 }
