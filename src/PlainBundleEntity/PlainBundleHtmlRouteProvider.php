@@ -38,6 +38,7 @@ class PlainBundleHtmlRouteProvider extends AdminHtmlRouteProvider {
 
     $entity_type_id = $entity_type->id();
 
+    // Sanity checks.
     if (!$entity_type->hasLinkTemplate('field-ui-base')) {
       throw new UnsupportedEntityTypeDefinitionException(sprintf(
         "The %s entity type uses PlainBundleHtmlRouteProvider but does not define a 'field-ui-base' link template.",
@@ -47,6 +48,14 @@ class PlainBundleHtmlRouteProvider extends AdminHtmlRouteProvider {
     if (!$entity_type->getAdminPermission()) {
       throw new UnsupportedEntityTypeDefinitionException(sprintf(
         "The %s entity type uses PlainBundleHtmlRouteProvider but does not define an admin permission.",
+        $entity_type_id
+      ));
+    }
+    // TODO: consider adding 'field_ui_base_route' dynamically in
+    // hook_entity_type_alter(), since the route name is derived.
+    if (!$entity_type->get('field_ui_base_route')) {
+      throw new UnsupportedEntityTypeDefinitionException(sprintf(
+        "The %s entity type uses PlainBundleHtmlRouteProvider but does not define a field_ui_base_route entity type property.",
         $entity_type_id
       ));
     }
