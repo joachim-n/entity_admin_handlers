@@ -60,6 +60,14 @@ class PlainBundleHtmlRouteProvider extends AdminHtmlRouteProvider {
       ));
     }
 
+    if ($entity_type->get('field_ui_base_route') != "entity.{$entity_type_id}.field_ui_base") {
+      throw new UnsupportedEntityTypeDefinitionException(sprintf(
+        "The %s entity type uses PlainBundleHtmlRouteProvider but its field_ui_base_route entity type property is not set to '%s'.",
+        $entity_type_id,
+        "entity.{$entity_type_id}.field_ui_base"
+      ));
+    }
+
     if ($admin_base_route = $this->getAdminBaseRoute($entity_type)) {
       $collection->add("entity.{$entity_type_id}.admin", $admin_base_route);
     }
